@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭкоСад — растения, семена и товары для сада с доставкой</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+        
+        :root {
+            --primary: #10b981;
+        }
+        
+        .tail-container {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        .logo-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .hero-bg {
+            background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url('https://picsum.photos/id/1015/2000/1200') center/cover no-repeat;
+        }
+
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .product-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px -12px rgb(16 185 129 / 0.25);
+        }
+
+        .modal {
+            animation: modalPop 0.3s ease forwards;
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .cart-slide {
+            transform: translateX(100%);
+            transition: transform 0.4s ease;
+        }
+        .cart-slide.open {
+            transform: translateX(0);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #10b981;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="tail-container bg-emerald-50 text-emerald-950 dark:bg-zinc-950 dark:text-emerald-50">
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-lg dark:bg-zinc-900 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- LOGO -->
+                <div onclick="navigate('home')" class="flex items-center gap-3 cursor-pointer">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-white text-3xl">🌱</div>
+                    <div>
+                        <span class="logo-font text-3xl font-bold tracking-tight text-emerald-700">ЭкоСад</span>
+                    </div>
+                </div>
+
+                <!-- MENU -->
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                    <a onclick="navigate('home')" class="nav-link cursor-pointer">Главная</a>
+                    <a onclick="navigate('catalog')" class="nav-link cursor-pointer">Каталог</a>
+                    <a onclick="navigate('about')" class="nav-link cursor-pointer">О нас</a>
+                    <a onclick="navigate('contacts')" class="nav-link cursor-pointer">Контакты</a>
+                </div>
+
+                <div class="flex items-center gap-5">
+                    <!-- CART -->
+                    <button onclick="toggleCart()" 
+                            class="relative flex items-center gap-2 hover:text-emerald-600 transition-colors">
+                        <i class="fa-solid fa-cart-shopping text-2xl"></i>
+                        <span id="cart-count" 
+                              class="absolute -top-1 -right-1 bg-emerald-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                    </button>
+
+                    <!-- ACCOUNT -->
+                    <button onclick="toggleAccountModal()" 
+                            id="account-btn"
+                            class="flex items-center gap-2 text-sm font-medium hover:text-emerald-600 transition-colors">
+                        <i class="fa-solid fa-user text-2xl"></i>
+                    </button>
+
+                    <!-- MOBILE HAMBURGER -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-2xl">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE MENU -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-zinc-900 border-t px-6 py-4">
+            <div class="flex flex-col gap-4 text-lg">
+                <a onclick="navigate('home');toggleMobileMenu()" class="cursor-pointer">Главная</a>
+                <a onclick="navigate('catalog');toggleMobileMenu()" class="cursor-pointer">Каталог</a>
+                <a onclick="navigate('about');toggleMobileMenu()" class="cursor-pointer">О нас</a>
+                <a onclick="navigate('contacts');toggleMobileMenu()" class="cursor-pointer">Контакты</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGES -->
+    <!-- HOME -->
+    <div id="home" class="page active">
+        <!-- HERO -->
+        <div class="hero-bg h-screen flex items-center text-white">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <div class="inline-block bg-emerald-600/80 px-6 py-2 rounded-3xl text-sm tracking-widest mb-6">ДОСТАВКА ПО ВСЕЙ РОССИИ ЗА 2–5 ДНЕЙ</div>
+                <h1 class="text-6xl md:text-7xl font-bold logo-font leading-none mb-6">Ваш сад.<br>Ваша радость.</h1>
+                <p class="text-xl md:text-2xl max-w-lg mx-auto mb-10">Комнатные растения, садовые культуры и всё для ухода — с любовью от ЭкоСад</p>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="navigate('catalog')" 
+                            class="bg-emerald-600 hover:bg-emerald-700 px-10 py-5 rounded-3xl text-lg font-semibold transition-all active:scale-95">
+                        Перейти в каталог
+                    </button>
+                    <button onclick="showProductModal(0)" 
+                            class="border-2 border-white hover:bg-white hover:text-emerald-950 px-10 py-5 rounded-3xl text-lg font-semibold transition-all">
+                        Посмотреть хиты
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURED -->
+        <div class="max-w-7xl mx-auto px-6 py-20">
+            <div class="flex justify-between items-end mb-10">
+                <h2 class="text-4xl font-bold">Хиты продаж</h2>
+                <a onclick="navigate('catalog')" class="text-emerald-600 font-medium flex items-center gap-2 hover:gap-4 transition-all">
+                    Весь каталог <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div id="featured-grid" class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <!-- Заполняется JS -->
+            </div>
+        </div>
+
+        <!-- BENEFITS -->
+        <div class="bg-emerald-800 text-white py-20">
+            <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12 text-center">
+                <div>
+                    <div class="text-7xl mb-6">🌍</div>
+                    <h3 class="text-2xl font-semibold mb-3">Эко-материалы</h3>
+                    <p class="text-emerald-100">100% натуральные горшки, грунт и удобрения без химии</p>
+                </div>
+                <div>
+                    <div class="text-7xl mb-6">🚚</div>
+                    <h3 class="text-2xl font-semibold mb-3">Бережная доставка</h3>
+                    <p class="text-emerald-100">Специальные коробки и уход за растениями в пути</p>
+                </div>
+                <div>
+                    <div class="text-7xl mb-6">🛡️</div>
+                    <h3 class="text-2xl font-semibold mb-3">Гарантия приживаемости</h3>
+                    <p class="text-emerald-100">Если растение не приживётся — заменим бесплатно</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TESTIMONIALS -->
+        <div class="max-w-7xl mx-auto px-6 py-20">
+            <h2 class="text-4xl font-bold text-center mb-12">Что говорят наши клиенты</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow">
+                    <div class="flex gap-1 text-amber-400 mb-6">★★★★★</div>
+                    <p class="italic">"Монстера пришла в идеальном состоянии! Уже 3 месяца растёт как сумасшедшая. Спасибо за заботу!"</p>
+                    <div class="mt-8 flex items-center gap-4">
+                        <img src="https://picsum.photos/id/64/64/64" class="w-12 h-12 rounded-2xl object-cover">
+                        <div>
+                            <div class="font-semibold">Анна Морозова</div>
+                            <div class="text-sm text-emerald-600">Москва</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow">
+                    <div class="flex gap-1 text-amber-400 mb-6">★★★★☆</div>
+                    <p class="italic">"Семена томатов взошли на 100%. Урожай был просто огромный! Теперь только у вас заказываю."</p>
+                    <div class="mt-8 flex items-center gap-4">
+                        <img src="https://picsum.photos/id/201/64/64" class="w-12 h-12 rounded-2xl object-cover">
+                        <div>
+                            <div class="font-semibold">Игорь Петров</div>
+                            <div class="text-sm text-emerald-600">Краснодар</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow">
+                    <div class="flex gap-1 text-amber-400 mb-6">★★★★★</div>
+                    <p class="italic">"Очень удобный сайт, доставка за 3 дня в Екатеринбург. Растения упакованы идеально."</p>
+                    <div class="mt-8 flex items-center gap-4">
+                        <img src="https://picsum.photos/id/29/64/64" class="w-12 h-12 rounded-2xl object-cover">
+                        <div>
+                            <div class="font-semibold">Мария Соколова</div>
+                            <div class="text-sm text-emerald-600">Екатеринбург</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATALOG -->
+    <div id="catalog" class="page">
+        <div class="bg-emerald-700 text-white py-12">
+            <div class="max-w-7xl mx-auto px-6">
+                <h1 class="text-5xl font-bold mb-3">Каталог товаров</h1>
+                <p class="text-emerald-200">Более 120 позиций • обновление каждую неделю</p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 py-10">
+            <!-- FILTERS -->
+            <div class="flex flex-wrap gap-4 mb-10">
+                <div class="flex gap-2 bg-white dark:bg-zinc-900 p-2 rounded-3xl shadow">
+                    <button onclick="filterCategory('all')" id="filter-all"
+                            class="filter-btn active px-8 py-3 rounded-3xl text-sm font-medium">Все</button>
+                    <button onclick="filterCategory('room')" id="filter-room"
+                            class="filter-btn px-8 py-3 rounded-3xl text-sm font-medium">Комнатные</button>
+                    <button onclick="filterCategory('garden')" id="filter-garden"
+                            class="filter-btn px-8 py-3 rounded-3xl text-sm font-medium">Садовые</button>
+                    <button onclick="filterCategory('tools')" id="filter-tools"
+                            class="filter-btn px-8 py-3 rounded-3xl text-sm font-medium">Инструменты</button>
+                </div>
+
+                <input id="catalog-search" 
+                       onkeyup="liveSearch(this.value)"
+                       type="text" 
+                       placeholder="Название или артикул..." 
+                       class="flex-1 max-w-md bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-zinc-700 rounded-3xl px-8 py-3 outline-none focus:border-emerald-500">
+            </div>
+
+            <!-- PRODUCTS GRID -->
+            <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <!-- Заполняется JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div id="about" class="page">
+        <div class="max-w-5xl mx-auto px-6 py-20">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="uppercase tracking-widest text-emerald-600 font-medium mb-3">С 2018 ГОДА</div>
+                    <h1 class="text-6xl font-bold leading-none mb-10">Мы делаем садоводство<br>простым и радостным</h1>
+                    <p class="text-lg text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                        ЭкоСад — это не просто магазин. Это сообщество любителей зелени. 
+                        Мы сами выращиваем рассаду, тестируем каждое растение и помогаем тысячам людей 
+                        создавать живые уголки в домах и на участках.
+                    </p>
+                    <div class="mt-12 grid grid-cols-2 gap-8">
+                        <div class="border-l-4 border-emerald-600 pl-6">
+                            <div class="text-5xl font-bold text-emerald-600">12 450</div>
+                            <div class="text-sm">довольных клиентов</div>
+                        </div>
+                        <div class="border-l-4 border-emerald-600 pl-6">
+                            <div class="text-5xl font-bold text-emerald-600">98%</div>
+                            <div class="text-sm">приживаемость растений</div>
+                        </div>
+                    </div>
+                </div>
+                <img src="https://picsum.photos/id/1016/800/900" 
+                     class="rounded-3xl shadow-2xl" alt="Наша ферма">
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div id="contacts" class="page">
+        <div class="max-w-7xl mx-auto px-6 py-20">
+            <div class="grid md:grid-cols-2 gap-16">
+                <!-- FORM -->
+                <div>
+                    <h2 class="text-5xl font-bold mb-8">Напишите нам</h2>
+                    <form onsubmit="sendContact(event)" class="space-y-6">
+                        <div class="grid grid-cols-2 gap-6">
+                            <input type="text" id="contact-name" placeholder="Ваше имя" 
+                                   class="bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-zinc-700 rounded-3xl px-7 py-5 outline-none focus:border-emerald-500" required>
+                            <input type="tel" id="contact-phone" placeholder="Телефон" 
+                                   class="bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-zinc-700 rounded-3xl px-7 py-5 outline-none focus:border-emerald-500" required>
+                        </div>
+                        <input type="email" id="contact-email" placeholder="Email" 
+                               class="w-full bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-zinc-700 rounded-3xl px-7 py-5 outline-none focus:border-emerald-500" required>
+                        <textarea id="contact-message" rows="5" placeholder="Ваш вопрос или пожелание..." 
+                                  class="w-full bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-zinc-700 rounded-3xl px-7 py-5 outline-none focus:border-emerald-500 resize-none"></textarea>
+                        
+                        <button type="submit"
+                                class="w-full bg-emerald-600 hover:bg-emerald-700 py-6 rounded-3xl text-white text-lg font-semibold transition-all">
+                            Отправить сообщение
+                        </button>
+                    </form>
+                </div>
+
+                <!-- INFO -->
+                <div class="space-y-12">
+                    <div>
+                        <h3 class="font-semibold text-xl mb-6 flex items-center gap-3">
+                            <i class="fa-solid fa-phone text-emerald-600"></i> 
+                            Контакты
+                        </h3>
+                        <div class="space-y-4 text-lg">
+                            <p><strong>Телефон:</strong> <a href="tel:+78005553535" class="text-emerald-600">8 800 555-35-35</a></p>
+                            <p><strong>Email:</strong> <a href="mailto:hello@ecosad.ru" class="text-emerald-600">hello@ecosad.ru</a></p>
+                            <p><strong>Адрес:</strong> Москва, ул. Лесная, 12</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl">
+                        <h4 class="font-medium mb-4">Мы в соцсетях</h4>
+                        <div class="flex gap-6 text-4xl">
+                            <i onclick="fakeSocial()" class="fa-brands fa-vk text-emerald-600 cursor-pointer hover:scale-110 transition"></i>
+                            <i onclick="fakeSocial()" class="fa-brands fa-telegram text-emerald-600 cursor-pointer hover:scale-110 transition"></i>
+                            <i onclick="fakeSocial()" class="fa-brands fa-instagram text-emerald-600 cursor-pointer hover:scale-110 transition"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT MODAL -->
+    <div onclick="if(event.target.id==='product-modal') hideProductModal()" 
+         id="product-modal" 
+         class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="modal bg-white dark:bg-zinc-900 max-w-2xl w-full mx-4 rounded-3xl overflow-hidden">
+            <div class="relative">
+                <button onclick="hideProductModal()" 
+                        class="absolute top-6 right-6 text-4xl text-emerald-600 z-10">×</button>
+                <img id="modal-image" class="w-full h-96 object-cover">
+                
+                <div class="p-8">
+                    <div id="modal-category" 
+                         class="inline-block px-5 py-1 text-xs font-bold bg-emerald-100 dark:bg-emerald-900 text-emerald-700 rounded-3xl mb-3"></div>
+                    <h2 id="modal-name" class="text-4xl font-bold mb-2"></h2>
+                    <div id="modal-price" class="text-3xl font-semibold text-emerald-600 mb-6"></div>
+                    
+                    <p id="modal-description" class="text-emerald-700 dark:text-emerald-300 leading-relaxed mb-8"></p>
+                    
+                    <div class="flex items-center gap-6">
+                        <div class="flex-1">
+                            <div class="text-sm text-emerald-600 mb-2">Количество</div>
+                            <div class="flex border border-emerald-300 dark:border-zinc-700 rounded-3xl overflow-hidden">
+                                <button onclick="changeQty(-1)" class="px-6 text-2xl font-light">-</button>
+                                <div id="modal-qty" class="px-8 py-4 font-semibold text-xl border-x">1</div>
+                                <button onclick="changeQty(1)" class="px-6 text-2xl font-light">+</button>
+                            </div>
+                        </div>
+                        
+                        <button onclick="addCurrentToCart()" 
+                                class="flex-1 bg-emerald-600 hover:bg-emerald-700 py-6 rounded-3xl text-white font-semibold text-xl transition-all">
+                            В корзину
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART SLIDER -->
+    <div onclick="if(event.target.id==='cart-overlay') toggleCart()" 
+         id="cart-overlay" 
+         class="fixed inset-0 bg-black/60 hidden z-[110]"></div>
+    
+    <div id="cart-slider" 
+         class="cart-slide fixed top-0 bottom-0 right-0 w-full max-w-md bg-white dark:bg-zinc-900 shadow-2xl z-[120] overflow-auto">
+        <div class="p-8">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-3xl font-bold">Корзина</h3>
+                <button onclick="toggleCart()" class="text-4xl">×</button>
+            </div>
+            
+            <div id="cart-items" class="space-y-8 min-h-[400px]">
+                <!-- Заполняется JS -->
+            </div>
+            
+            <div class="border-t pt-8 mt-auto">
+                <div class="flex justify-between text-2xl mb-8">
+                    <span class="font-medium">Итого</span>
+                    <span id="cart-total" class="font-bold">0 ₽</span>
+                </div>
+                
+                <button onclick="checkout()" 
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 py-6 rounded-3xl text-white text-xl font-semibold">
+                    Оформить заказ
+                </button>
+                <p class="text-center text-xs text-emerald-600 mt-4">Доставка от 500 ₽ — бесплатно при заказе от 5000 ₽</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT MODAL -->
+    <div onclick="if(event.target.id==='account-modal') toggleAccountModal()" 
+         id="account-modal" 
+         class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-[130]">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="modal bg-white dark:bg-zinc-900 w-full max-w-lg mx-4 rounded-3xl p-10">
+            
+            <div id="logged-in-view" class="hidden">
+                <div class="flex items-center gap-6 mb-10">
+                    <div class="w-20 h-20 bg-emerald-200 dark:bg-emerald-800 rounded-3xl flex items-center justify-center text-5xl">👤</div>
+                    <div>
+                        <div id="user-name" class="text-3xl font-bold"></div>
+                        <div id="user-email" class="text-emerald-600"></div>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div onclick="alert('Ваши заказы: Монстера — 12.03.2025, Фикус — 05.03.2025')" 
+                         class="flex justify-between items-center p-6 bg-emerald-50 dark:bg-zinc-800 rounded-3xl cursor-pointer hover:bg-emerald-100">
+                        <div>📦 Мои заказы</div>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div onclick="alert('Бонусов: 1240 ₽')" 
+                         class="flex justify-between items-center p-6 bg-emerald-50 dark:bg-zinc-800 rounded-3xl cursor-pointer hover:bg-emerald-100">
+                        <div>🎁 Бонусы и скидки</div>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <button onclick="logout()" 
+                        class="mt-10 w-full py-5 border border-red-300 text-red-600 rounded-3xl font-medium hover:bg-red-50">
+                    Выйти из аккаунта
+                </button>
+            </div>
+            
+            <!-- AUTH FORM -->
+            <div id="auth-view">
+                <div class="flex gap-3 mb-8">
+                    <button onclick="switchAuthTab(0)" id="tab-login"
+                            class="flex-1 py-4 font-semibold border-b-4 border-emerald-600">Вход</button>
+                    <button onclick="switchAuthTab(1)" id="tab-register"
+                            class="flex-1 py-4 font-semibold text-emerald-400">Регистрация</button>
+                </div>
+                
+                <!-- LOGIN -->
+                <div id="login-form">
+                    <input id="login-email" type="email" placeholder="Email" 
+                           class="w-full mb-5 py-5 px-7 rounded-3xl border border-emerald-200 dark:border-zinc-700 outline-none">
+                    <input id="login-pass" type="password" placeholder="Пароль" 
+                           class="w-full mb-8 py-5 px-7 rounded-3xl border border-emerald-200 dark:border-zinc-700 outline-none">
+                    
+                    <button onclick="login()" 
+                            class="w-full py-6 bg-emerald-600 text-white rounded-3xl font-semibold text-lg">
+                        Войти
+                    </button>
+                </div>
+                
+                <!-- REGISTER -->
+                <div id="register-form" class="hidden">
+                    <input id="reg-name" type="text" placeholder="Имя" 
+                           class="w-full mb-5 py-5 px-7 rounded-3xl border border-emerald-200 dark:border-zinc-700 outline-none">
+                    <input id="reg-email" type="email" placeholder="Email" 
+                           class="w-full mb-5 py-5 px-7 rounded-3xl border border-emerald-200 dark:border-zinc-700 outline-none">
+                    <input id="reg-pass" type="password" placeholder="Пароль" 
+                           class="w-full mb-5 py-5 px-7 rounded-3xl border border-emerald-200 dark:border-zinc-700 outline-none">
+                    <input id="reg-pass2" type="password" placeholder="Повторите пароль" 
+                           class="w-full mb-8 py-5 px-7 rounded-3xl border border-emerald-200 dark:border-zinc-700 outline-none">
+                    
+                    <button onclick="register()" 
+                            class="w-full py-6 bg-emerald-600 text-white rounded-3xl font-semibold text-lg">
+                        Создать аккаунт
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== TAILWIND INIT ====================
+        function initTailwind() {
+            tailwind.config = {
+                content: [],
+                theme: {
+                    extend: {}
+                }
+            }
+        }
+
+        // ==================== DATA ====================
+        let products = [
+            { id: 0, name: "Монстера деликатесная", price: 2490, category: "room", img: "https://picsum.photos/id/1015/600/600", desc: "Крупное тропическое растение с эффектными резными листьями. Идеально для гостиной." },
+            { id: 1, name: "Фикус Бенджамина", price: 1890, category: "room", img: "https://picsum.photos/id/201/600/600", desc: "Классика интерьерного озеленения. Легко формируется в дерево." },
+            { id: 2, name: "Сансевиерия Лауренти", price: 890, category: "room", img: "https://picsum.photos/id/29/600/600", desc: "«Тёщин язык» — выносливое растение, очищает воздух даже ночью." },
+            { id: 3, name: "Томат Черри семена", price: 290, category: "garden", img: "https://picsum.photos/id/160/600/600", desc: "Сладкие черри-томаты для балкона и теплицы. 20 семян в пакете." },
+            { id: 4, name: "Лопата садовая профессиональная", price: 1290, category: "tools", img: "https://picsum.photos/id/251/600/600", desc: "Легкая, острая, с деревянной ручкой из ясеня." },
+            { id: 5, name: "Удобрение для орхидей 500 мл", price: 690, category: "room", img: "https://picsum.photos/id/312/600/600", desc: "Органическое жидкое удобрение для цветущих комнатных растений." },
+            { id: 6, name: "Герань розовая", price: 1490, category: "garden", img: "https://picsum.photos/id/366/600/600", desc: "Цветёт всё лето. Идеальна для балконных ящиков." },
+            { id: 7, name: "Набор инструментов для кактусов", price: 790, category: "tools", img: "https://picsum.photos/id/401/600/600", desc: "Пинцет, лопатка, ножницы — всё для пересадки суккулентов." }
+        ]
+
+        let cart = []
+        let currentUser = null
+        let currentModalProduct = null
+        let modalQty = 1
+
+        let users = JSON.parse(localStorage.getItem('ecosad_users')) || []
+
+        // ==================== NAVIGATION ====================
+        function navigate(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+            document.getElementById(page).classList.add('active')
+            
+            if (page === 'catalog') renderProducts(products)
+        }
+
+        // ==================== RENDER PRODUCTS ====================
+        function renderProducts(filteredProducts) {
+            const grid = document.getElementById('products-grid')
+            const featuredGrid = document.getElementById('featured-grid')
+            
+            grid.innerHTML = ''
+            featuredGrid.innerHTML = ''
+
+            filteredProducts.forEach(product => {
+                const cardHTML = `
+                    <div onclick="showProductModal(${product.id})" class="product-card bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow cursor-pointer">
+                        <img src="${product.img}" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <div class="text-xs uppercase tracking-widest text-emerald-600 mb-1">${product.category === 'room' ? 'Комнатное' : product.category === 'garden' ? 'Садовое' : 'Инструмент'}</div>
+                            <div class="font-semibold text-xl leading-tight mb-4">${product.name}</div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <span class="text-3xl font-bold">${product.price}</span>
+                                    <span class="text-sm text-emerald-600">₽</span>
+                                </div>
+                                <button onclick="event.stopImmediatePropagation(); quickAddToCart(${product.id});" 
+                                        class="bg-emerald-600 text-white w-10 h-10 rounded-2xl flex items-center justify-center hover:bg-emerald-700 transition">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `
+                grid.innerHTML += cardHTML
+            })
+
+            // Featured — первые 4
+            products.slice(0, 4).forEach(product => {
+                const html = `
+                    <div onclick="showProductModal(${product.id})" class="product-card bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow cursor-pointer">
+                        <img src="${product.img}" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <div class="font-semibold">${product.name}</div>
+                            <div class="text-emerald-600 text-2xl font-bold">${product.price} ₽</div>
+                        </div>
+                    </div>
+                `
+                featuredGrid.innerHTML += html
+            })
+        }
+
+        // ==================== FILTERS & SEARCH ====================
+        function filterCategory(cat) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active', 'bg-emerald-600', 'text-white'))
+            
+            if (cat === 'all') {
+                document.getElementById('filter-all').classList.add('active', 'bg-emerald-600', 'text-white')
+                renderProducts(products)
+            } else {
+                const filtered = products.filter(p => p.category === cat)
+                renderProducts(filtered)
+                
+                if (cat === 'room') document.getElementById('filter-room').classList.add('active', 'bg-emerald-600', 'text-white')
+                if (cat === 'garden') document.getElementById('filter-garden').classList.add('active', 'bg-emerald-600', 'text-white')
+                if (cat === 'tools') document.getElementById('filter-tools').classList.add('active', 'bg-emerald-600', 'text-white')
+            }
+        }
+
+        function liveSearch(query) {
+            if (!query) {
+                renderProducts(products)
+                return
+            }
+            const lower = query.toLowerCase()
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(lower)
+            )
+            renderProducts(filtered)
+        }
+
+        function searchProducts(query) {
+            liveSearch(query)
+            navigate('catalog')
+        }
+
+        // ==================== PRODUCT MODAL ====================
+        function showProductModal(id) {
+            currentModalProduct = products.find(p => p.id === id)
+            if (!currentModalProduct) return
+            
+            modalQty = 1
+            
+            document.getElementById('modal-image').src = currentModalProduct.img
+            document.getElementById('modal-name').textContent = currentModalProduct.name
+            document.getElementById('modal-price').innerHTML = `${currentModalProduct.price} <span class="text-xl">₽</span>`
+            document.getElementById('modal-description').textContent = currentModalProduct.desc
+            document.getElementById('modal-category').textContent = 
+                currentModalProduct.category === 'room' ? 'Комнатные растения' :
+                currentModalProduct.category === 'garden' ? 'Садовые культуры' : 'Инструменты'
+            
+            document.getElementById('product-modal').classList.remove('hidden')
+            document.getElementById('product-modal').classList.add('flex')
+        }
+
+        function hideProductModal() {
+            const modal = document.getElementById('product-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+
+        function changeQty(delta) {
+            modalQty = Math.max(1, modalQty + delta)
+            // Можно добавить отображение количества в модалке, но для простоты оставим
+        }
+
+        function addCurrentToCart() {
+            if (!currentModalProduct) return
+            addToCart(currentModalProduct.id, modalQty)
+            hideProductModal()
+        }
+
+        // ==================== CART ====================
+        function addToCart(id, qty = 1) {
+            const product = products.find(p => p.id === id)
+            if (!product) return
+            
+            const existing = cart.find(item => item.id === id)
+            if (existing) {
+                existing.qty += qty
+            } else {
+                cart.push({ ...product, qty })
+            }
+            
+            updateCartCount()
+            showToast(`Добавлено: ${product.name}`)
+        }
+
+        function quickAddToCart(id) {
+            event.stopImmediatePropagation()
+            addToCart(id)
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0)
+            document.getElementById('cart-count').textContent = totalItems
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items')
+            container.innerHTML = ''
+            
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-20 text-emerald-400">Корзина пуста :(</div>`
+                document.getElementById('cart-total').textContent = '0 ₽'
+                return
+            }
+            
+            let total = 0
+            
+            cart.forEach((item, index) => {
+                const sum = item.price * item.qty
+                total += sum
+                
+                const html = `
+                    <div class="flex gap-6">
+                        <img src="${item.img}" class="w-24 h-24 object-cover rounded-2xl">
+                        <div class="flex-1">
+                            <div class="font-semibold">${item.name}</div>
+                            <div class="text-emerald-600">${item.price} ₽ × ${item.qty}</div>
+                            <div class="mt-4 flex items-center gap-4">
+                                <button onclick="changeCartQty(${index}, -1)" class="w-8 h-8 border rounded-2xl">-</button>
+                                <span class="font-medium w-8 text-center">${item.qty}</span>
+                                <button onclick="changeCartQty(${index}, 1)" class="w-8 h-8 border rounded-2xl">+</button>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-bold">${sum} ₽</div>
+                            <button onclick="removeFromCart(${index})" class="text-red-400 text-xs mt-6">удалить</button>
+                        </div>
+                    </div>
+                `
+                container.innerHTML += html
+            })
+            
+            document.getElementById('cart-total').textContent = total + ' ₽'
+        }
+
+        function changeCartQty(index, delta) {
+            cart[index].qty += delta
+            if (cart[index].qty < 1) cart.splice(index, 1)
+            renderCart()
+            updateCartCount()
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1)
+            renderCart()
+            updateCartCount()
+        }
+
+        function toggleCart() {
+            const slider = document.getElementById('cart-slider')
+            const overlay = document.getElementById('cart-overlay')
+            
+            if (slider.classList.contains('open')) {
+                slider.classList.remove('open')
+                overlay.classList.add('hidden')
+            } else {
+                renderCart()
+                slider.classList.add('open')
+                overlay.classList.remove('hidden')
+            }
+        }
+
+        function checkout() {
+            if (cart.length === 0) return
+            if (!currentUser) {
+                alert('Для оформления заказа нужно войти в аккаунт')
+                toggleCart()
+                toggleAccountModal()
+                return
+            }
+            
+            alert(`✅ Заказ оформлен!\n\nСумма: ${document.getElementById('cart-total').textContent}\nДоставка завтра!`)
+            cart = []
+            updateCartCount()
+            toggleCart()
+        }
+
+        // ==================== AUTH ====================
+        function toggleAccountModal() {
+            const modal = document.getElementById('account-modal')
+            
+            if (modal.classList.contains('hidden')) {
+                if (currentUser) {
+                    document.getElementById('logged-in-view').classList.remove('hidden')
+                    document.getElementById('auth-view').classList.add('hidden')
+                    document.getElementById('user-name').textContent = currentUser.name
+                    document.getElementById('user-email').textContent = currentUser.email
+                } else {
+                    document.getElementById('logged-in-view').classList.add('hidden')
+                    document.getElementById('auth-view').classList.remove('hidden')
+                    switchAuthTab(0)
+                }
+                modal.classList.remove('hidden')
+                modal.classList.add('flex')
+            } else {
+                modal.classList.add('hidden')
+                modal.classList.remove('flex')
+            }
+        }
+
+        function switchAuthTab(tab) {
+            if (tab === 0) {
+                document.getElementById('login-form').classList.remove('hidden')
+                document.getElementById('register-form').classList.add('hidden')
+                document.getElementById('tab-login').classList.add('border-b-4', 'border-emerald-600')
+                document.getElementById('tab-register').classList.remove('border-b-4', 'border-emerald-600')
+            } else {
+                document.getElementById('login-form').classList.add('hidden')
+                document.getElementById('register-form').classList.remove('hidden')
+                document.getElementById('tab-login').classList.remove('border-b-4', 'border-emerald-600')
+                document.getElementById('tab-register').classList.add('border-b-4', 'border-emerald-600')
+            }
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value.trim()
+            const pass = document.getElementById('login-pass').value.trim()
+            
+            const user = users.find(u => u.email === email && u.password === pass)
+            
+            if (user) {
+                currentUser = user
+                localStorage.setItem('ecosad_current_user', JSON.stringify(user))
+                toggleAccountModal()
+                updateUIAfterLogin()
+                showToast('Добро пожаловать обратно!')
+            } else {
+                alert('Неверный email или пароль')
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('reg-name').value.trim()
+            const email = document.getElementById('reg-email').value.trim()
+            const pass = document.getElementById('reg-pass').value
+            const pass2 = document.getElementById('reg-pass2').value
+            
+            if (!name || !email || !pass) {
+                alert('Заполните все поля')
+                return
+            }
+            if (pass !== pass2) {
+                alert('Пароли не совпадают')
+                return
+            }
+            
+            if (users.find(u => u.email === email)) {
+                alert('Пользователь с таким email уже существует')
+                return
+            }
+            
+            const newUser = { name, email, password: pass }
+            users.push(newUser)
+            localStorage.setItem('ecosad_users', JSON.stringify(users))
+            
+            currentUser = newUser
+            localStorage.setItem('ecosad_current_user', JSON.stringify(newUser))
+            
+            toggleAccountModal()
+            updateUIAfterLogin()
+            showToast('Аккаунт создан! Добро пожаловать!')
+        }
+
+        function logout() {
+            currentUser = null
+            localStorage.removeItem('ecosad_current_user')
+            toggleAccountModal()
+            updateUIAfterLogin()
+            showToast('Вы вышли из аккаунта')
+        }
+
+        function updateUIAfterLogin() {
+            const btn = document.getElementById('account-btn')
+            if (currentUser) {
+                btn.innerHTML = `<i class="fa-solid fa-circle-user text-2xl"></i><span class="ml-2 text-sm">${currentUser.name.split(' ')[0]}</span>`
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-user text-2xl"></i>`
+            }
+        }
+
+        // ==================== CONTACT FORM ====================
+        function sendContact(e) {
+            e.preventDefault()
+            alert('✅ Сообщение отправлено! Мы свяжемся с вами в течение часа.')
+            e.target.reset()
+        }
+
+        // ==================== TOAST ====================
+        function showToast(text) {
+            const toast = document.createElement('div')
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                background: #10b981; color: white; padding: 16px 28px; border-radius: 9999px;
+                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2); z-index: 9999; font-weight: 500;
+            `
+            toast.textContent = text
+            document.body.appendChild(toast)
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.4s'
+                toast.style.opacity = 0
+                toast.style.transform = 'translate(-50%, 20px)'
+                setTimeout(() => toast.remove(), 400)
+            }, 2500)
+        }
+
+        function fakeSocial() {
+            showToast('Переход в социальную сеть...')
+        }
+
+        // ==================== MOBILE MENU ====================
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu')
+            menu.classList.toggle('hidden')
+        }
+
+        // ==================== KEYBOARD & INIT ====================
+        function init() {
+            initTailwind()
+            renderProducts(products)
+            
+            // Загрузка текущего пользователя
+            const savedUser = localStorage.getItem('ecosad_current_user')
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser)
+                updateUIAfterLogin()
+            }
+            
+            // Клик вне модалок закрывает их
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape") {
+                    const productModal = document.getElementById('product-modal')
+                    if (!productModal.classList.contains('hidden')) hideProductModal()
+                    
+                    const cartSlider = document.getElementById('cart-slider')
+                    if (cartSlider.classList.contains('open')) toggleCart()
+                    
+                    const accountModal = document.getElementById('account-modal')
+                    if (!accountModal.classList.contains('hidden')) toggleAccountModal()
+                }
+            })
+            
+            // Показываем приветствие
+            setTimeout(() => {
+                showToast('Добро пожаловать в ЭкоСад 🌱')
+            }, 1200)
+            
+            // Демо: добавляем пару товаров в корзину
+            // cart.push({...products[0], qty: 1})
+            // updateCartCount()
+        }
+
+        window.onload = init
+    </script>
+</body>
+</html>
